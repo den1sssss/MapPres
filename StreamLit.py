@@ -26,7 +26,7 @@ import folium
 
 import pandas as pd
 import folium
-file = (r'C:\Users\Daniil\Downloads\Telegram Desktop\case1.xlsx')
+file = (r'case1.xlsx')
 df1 = pd.read_excel(file,skiprows = 1, header = 0)
 df1['Latitude'] = 55.539306
 df1['Longitude'] = 51.856451
