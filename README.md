@@ -1,4 +1,4 @@
-# technohack-gas
+# TATNEFT HACK AUG23
 
 ### Preview:
 You can take a look of online demo [here](https://0x0000dead-technohack-gas-streamlit-rxo93j.streamlit.app/)
