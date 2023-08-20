@@ -23,40 +23,39 @@ import folium
 #     language: python
 #     name: python3
 # ---
-
 import pandas as pd
 import folium
-file = (r'case1.xlsx')
+file = ('case1.xlsx')
 df1 = pd.read_excel(file,skiprows = 1, header = 0)
 df1['Latitude'] = 55.539306
 df1['Longitude'] = 51.856451
 df1['point'] = 'A'
 df1 = df1[df1.index > 1]
-file = (r'case2.xlsx')
+file = ('case2.xlsx')
 df2 = pd.read_excel(file,skiprows = 1, header = 0)
 df2['Latitude'] = 55.654578
 df2['Longitude'] = 51.800072
 df2['point'] = 'B'
 df2 = df2[df2.index > 1]
-file = (r'case3.xlsx')
+file = ('case3.xlsx')
 df3 = pd.read_excel(file,skiprows = 1, header = 0)
 df3['Latitude'] = 55.613193
 df3['Longitude'] = 51.784821
 df3['point'] = 'C'
 df3 = df3[df3.index > 1]
-file = (r'case4.xlsx')
+file = ('case4.xlsx')
 df4 = pd.read_excel(file,skiprows = 1, header = 0)
 df4['Latitude'] = 55.598983
 df4['Longitude'] = 51.771936
 df4['point'] = 'D'
 df4 = df4[df4.index > 1]
-file = (r'case5.xlsx')
+file = ('case5.xlsx')
 df5 = pd.read_excel(file,skiprows = 1, header = 0)
 df5['Latitude'] = 55.650091
 df5['Longitude'] = 51.852687
 df5['point'] = 'E'
 df5 = df5[df5.index > 1]
-file = (r'case6.xlsx')
+file = ('case6.xlsx')
 df6 = pd.read_excel(file,skiprows = 1, header = 0)
 df6['Latitude'] = 55.622944
 df6['Longitude'] = 51.82557
@@ -64,18 +63,108 @@ df6['point'] = 'F'
 df6 = df6[df6.index > 1]
 result = pd.concat([df1, df2,df3, df4,df5, df6], ignore_index=True)
 result.head()
+#%%
+result.drop('Показатель:', axis=1, inplace=True)
+result = result.rename({'Unnamed: 0':'date_time'}, axis=1)
+new_columns = [col.split(',')[0] for col in result.columns]
+result.columns = new_columns
+#%%
+desired_columns = ['point', 'Latitude', 'Longitude', 'date_time']
 
-#result.to_excel(r'my_data2.xlsx', encoding_override='latin1', index= False)
+other_columns = [col for col in result.columns if col not in desired_columns]
+new_order = desired_columns + other_columns
 
-# +
+result = result[new_order]
+#%%
+exclude_columns = ['point', 'Latitude', 'Longitude', 'date_time', 'V ветра', 'D ветра']
+
+numeric_columns = [col for col in result.columns if col not in exclude_columns]
+result[numeric_columns] = result[numeric_columns].apply(lambda x: x.str.replace(',', '.'))
+result[numeric_columns] = result[numeric_columns].apply(pd.to_numeric)
+#%%
+mac_df = pd.read_excel('substances macs.xlsx')
+filtered_rows = []
+for indicator, mac in mac_df.itertuples(index=False):
+    indicator_column = result[indicator]  # Выбираем столбец по текущему Indicator
+    mask = indicator_column > mac
+    if mask.any():
+        real_mac = mac / 0.9
+        filtered_data = result.loc[mask, :].copy()
+        filtered_data['ExceededIndicator'] = indicator  # Добавляем новый столбец
+        filtered_data['Indicator_mac'] = real_mac  # Добавляем новый столбец
+        filtered_data['excess_value'] = round(filtered_data[indicator] / real_mac, 2)
+        filtered_rows.append(filtered_data)
+
+# Объединяем отфильтрованные строки в один датафрейм
+filtered_df = pd.concat(filtered_rows)
+#%%
+filtered_df
+#%%
+import pandas as pd
+import folium
+file = ('case1.xlsx')
+df1 = pd.read_excel(file,skiprows = 1, header = 0)
+df1['Latitude'] = 55.539306
+df1['Longitude'] = 51.856451
+df1['point'] = 'A'
+df1 = df1[df1.index > 1]
+file = ('case2.xlsx')
+df2 = pd.read_excel(file,skiprows = 1, header = 0)
+df2['Latitude'] = 55.654578
+df2['Longitude'] = 51.800072
+df2['point'] = 'B'
+df2 = df2[df2.index > 1]
+file = ('case3.xlsx')
+df3 = pd.read_excel(file,skiprows = 1, header = 0)
+df3['Latitude'] = 55.613193
+df3['Longitude'] = 51.784821
+df3['point'] = 'C'
+df3 = df3[df3.index > 1]
+file = ('case4.xlsx')
+df4 = pd.read_excel(file,skiprows = 1, header = 0)
+df4['Latitude'] = 55.598983
+df4['Longitude'] = 51.771936
+df4['point'] = 'D'
+df4 = df4[df4.index > 1]
+file = ('case5.xlsx')
+df5 = pd.read_excel(file,skiprows = 1, header = 0)
+df5['Latitude'] = 55.650091
+df5['Longitude'] = 51.852687
+df5['point'] = 'E'
+df5 = df5[df5.index > 1]
+file = ('case6.xlsx')
+df6 = pd.read_excel(file,skiprows = 1, header = 0)
+df6['Latitude'] = 55.622944
+df6['Longitude'] = 51.82557
+df6['point'] = 'F'
+df6 = df6[df6.index > 1]
+result = pd.concat([df1, df2,df3, df4,df5, df6], ignore_index=True)
+result.head()
+#%%
+result['Unnamed: 0'] = pd.to_datetime(result['Unnamed: 0'], format='mixed')
+#%%
 initial_latitude = 55.539306
 initial_longitude = 51.856451
 
-date_string = "13.06.2023 00:00"
-date_format = "%d.%m.%Y %H:%M"
-
 # Создание карты
+m = folium.Map(location=[initial_latitude, initial_longitude], zoom_start=10)
 
+# Добавление маркеров на карту
+l = []
+for index, row in result.iterrows():
+    if row['Latitude'] in l and row['Longitude'] in l:
+        pass
+    else:
+        folium.Marker([row['Latitude'], row['Longitude']], popup=row['point']).add_to(m)
+        l.append(row['Latitude'])
+        l.append(row['Longitude'])
+folium.Marker([55.605673, 51.962679]).add_to(m)
+folium_static(m)
+
+# Сохранение карты в HTML-файл
+m.save('map.html')
+#%%
+result['Unnamed: 0'] = pd.to_datetime(result['Unnamed: 0'])
 result['D ветра, °'] = result['D ветра, °'].str.replace(r'\D', '', regex=True)
 result['D ветра, °']= pd.to_numeric(result['D ветра, °'], errors='coerce')
 # result['V ветра, м/с']= pd.to_numeric(result['V ветра, м/с'], errors='coerce')
@@ -84,6 +173,7 @@ result['Longitude'] = pd.to_numeric(result['Longitude'], errors='coerce')
 result['V ветра, м/с'] = result['V ветра, м/с'].str.extract(r'\((.*?)\)')[0].fillna(result['V ветра, м/с'].str.extract(r'\((.*?)\)|([^()]+)')[1])
 result['V ветра, м/с'] = result['V ветра, м/с'].str.replace(',', '.')
 result['V ветра, м/с'] = pd.to_numeric(result['V ветра, м/с'], errors='coerce')
+#%%
 result['CO, мг/м³'] = result['CO, мг/м³'].str.replace(',', '.')
 result['CO, мг/м³'] = pd.to_numeric(result['CO, мг/м³'], errors='coerce')
 result['NO, мг/м³'] = result['NO, мг/м³'].str.replace(',', '.')
@@ -96,9 +186,14 @@ result['SO2, мг/м³'] = result['SO2, мг/м³'].str.replace(',', '.')
 result['SO2, мг/м³'] = pd.to_numeric(result['SO2, мг/м³'], errors='coerce')
 result['H2S, мг/м³'] = result['H2S, мг/м³'].str.replace(',', '.')
 result['H2S, мг/м³'] = pd.to_numeric(result['H2S, мг/м³'], errors='coerce')
-given_period = result[result['Unnamed: 0'] == '01.06.2023 02:00']
+
+import pandas as pd
+import folium
+
+
+given_period = result[result['Unnamed: 0'] == '2023-06-28 22:30:00']
 given_period = given_period.fillna(0)
-given_period
+
 import folium
 import math
 from folium.vector_layers import PolyLine
@@ -162,18 +257,19 @@ for index, row in given_period.iterrows():
                     tag = 'H2S'
                 if color2 == 'red':
                     circle_center = (row['Latitude'], row['Longitude'])
-                    radius_meters = 500  # Радиус 1 км
+                    radius_meters = 400  # Радиус 1 км
                     circle = folium.Circle(
                         location=circle_center,
                         radius=radius_meters,
                         color=color2,  # Цвет обводки круга
                         fill=True,     # Заполнить круг цветом
                         fill_color=color2,  # Цвет заполнения круга
-                        fill_opacity=0.4    # Прозрачность заполнения
+                        fill_opacity=0.07,
+                        stroke = False # Прозрачность заполнения
                     )
                     circle.add_to(m)
                 vector_line.add_to(m)
                 vector_line1.add_to(m)
                 vector_line2.add_to(m)
-
 folium_static(m)
+result.head()
