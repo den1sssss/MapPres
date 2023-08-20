@@ -32,31 +32,31 @@ df1['Latitude'] = 55.539306
 df1['Longitude'] = 51.856451
 df1['point'] = 'A'
 df1 = df1[df1.index > 1]
-file = (r'C:\Users\Daniil\Downloads\Telegram Desktop\case2.xlsx')
+file = (r'case2.xlsx')
 df2 = pd.read_excel(file,skiprows = 1, header = 0)
 df2['Latitude'] = 55.654578
 df2['Longitude'] = 51.800072
 df2['point'] = 'B'
 df2 = df2[df2.index > 1]
-file = (r'C:\Users\Daniil\Downloads\Telegram Desktop\case3.xlsx')
+file = (r'case3.xlsx')
 df3 = pd.read_excel(file,skiprows = 1, header = 0)
 df3['Latitude'] = 55.613193
 df3['Longitude'] = 51.784821
 df3['point'] = 'C'
 df3 = df3[df3.index > 1]
-file = (r'C:\Users\Daniil\Downloads\Telegram Desktop\case4.xlsx')
+file = (r'case4.xlsx')
 df4 = pd.read_excel(file,skiprows = 1, header = 0)
 df4['Latitude'] = 55.598983
 df4['Longitude'] = 51.771936
 df4['point'] = 'D'
 df4 = df4[df4.index > 1]
-file = (r'C:\Users\Daniil\Downloads\Telegram Desktop\case5.xlsx')
+file = (r'case5.xlsx')
 df5 = pd.read_excel(file,skiprows = 1, header = 0)
 df5['Latitude'] = 55.650091
 df5['Longitude'] = 51.852687
 df5['point'] = 'E'
 df5 = df5[df5.index > 1]
-file = (r'C:\Users\Daniil\Downloads\Telegram Desktop\case6.xlsx')
+file = (r'case6.xlsx')
 df6 = pd.read_excel(file,skiprows = 1, header = 0)
 df6['Latitude'] = 55.622944
 df6['Longitude'] = 51.82557
